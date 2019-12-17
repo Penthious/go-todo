@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"todo/domain"
 	"todo/handlers"
 	"todo/postgres"
 
@@ -21,7 +22,10 @@ func main() {
 
 	defer DB.Close()
 
-	r := handlers.SetupRouter()
+	domainDB := domain.DB{UserRepo: postgres.NewUserRepo(DB)}
+	d := &domain.Domain{DB: domainDB}
+
+	r := handlers.SetupRouter(d)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8083"
