@@ -21,10 +21,18 @@ type ErrIsRequired struct {
 	field string
 }
 
+type ErrMustMatch struct {
+	field string
+}
+
 func (e ErrNotLongEnough) Error() string {
 	return fmt.Sprintf("%v not long enough, %d characters is required", e.field, e.length)
 }
 
 func (e ErrIsRequired) Error() string {
 	return fmt.Sprintf("%v is a required field", e.field)
+}
+
+func (e ErrMustMatch) Error() string {
+	return fmt.Sprintf("%v must match", e.field)
 }

@@ -16,7 +16,11 @@ func (r *RegisterPayload) IsValid() (bool, map[string]string) {
 	v.ValueIsRequired("password", r.Password)
 	v.MustBeLongerThan("password", r.Password, 6)
 
-	v.ValueIsRequired("confirmPassword", r.Password)
+	v.ValueIsRequired("confirmPassword", r.ConfirmPassword)
+	v.MustMatch(
+		ElementMatcher{field: "password", value: r.Password},
+		ElementMatcher{field: "confirmPassword", value: r.ConfirmPassword},
+	)
 
 	v.ValueIsRequired("username", r.Username)
 	v.MustBeLongerThan("username", r.Username, 3)
