@@ -1,24 +1,16 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"todo/domain"
 )
 
 func (s *Server) registerUser() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		payload := domain.RegisterPayload{}
+	var payload domain.RegisterPayload
 
-		err := json.NewDecoder(r.Body).Decode(&payload)
+	return validatePayload(func(w http.ResponseWriter, r *http.Request) {
 
-		if err != nil {
-			badRequestResponse(w, err)
-			return
-		}
-		fmt.Println(payload)
-
-		//user, err := s.domain.Register()
-	}
+		fmt.Println("payload", payload)
+	}, &payload)
 }

@@ -7,6 +7,23 @@ type RegisterPayload struct {
 	Username        string `json:"username"`
 }
 
+func (r *RegisterPayload) IsValid() (bool, map[string]string) {
+	v := NewValidator()
+
+	v.ValueIsRequired("email", r.Email)
+	v.MustBeValidEmail("email", r.Email)
+
+	v.ValueIsRequired("password", r.Password)
+	v.MustBeLongerThan("password", r.Password, 6)
+
+	v.ValueIsRequired("confirmPassword", r.Password)
+
+	v.ValueIsRequired("username", r.Username)
+	v.MustBeLongerThan("username", r.Username, 3)
+
+	return v.IsValid(), v.errors
+}
+
 func (d *Domain) Register(payload RegisterPayload) (*User, error) {
 	userExist, _ := d.DB.UserRepo.GetByEmail(payload.Email)
 
