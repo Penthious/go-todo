@@ -1,16 +1,30 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"todo/domain"
 )
+
+type authResponse struct {
+	User  *domain.User     `json:"user"`
+	Token *domain.JWTToken `json:"token"`
+}
 
 func (s *Server) registerUser() http.HandlerFunc {
 	var payload domain.RegisterPayload
 
 	return validatePayload(func(w http.ResponseWriter, r *http.Request) {
+		user, err := s.domain.Register(payload)
 
-		fmt.Println("payload", payload)
+		if err != nil {
+			badRequestResponse(w, err)
+			return
+		}
+		jwtToken, err := user.GenToken()
+		if err != nil {
+			badRequestResponse(w, err)
+			return
+		}
+		jsonResponse(w, &authResponse{User: user, Token: jwtToken}, http.StatusCreated)
 	}, &payload)
 }

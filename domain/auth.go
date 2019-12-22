@@ -1,5 +1,7 @@
 package domain
 
+import "golang.org/x/crypto/bcrypt"
+
 type RegisterPayload struct {
 	Email           string `json:"email"`
 	Password        string `json:"password"`
@@ -63,5 +65,13 @@ func (d *Domain) Register(payload RegisterPayload) (*User, error) {
 }
 
 func (d *Domain) setPassword(password string) (*string, error) {
-	return nil, nil
+	passwordByte := []byte(password)
+	passwordHash, err := bcrypt.GenerateFromPassword(passwordByte, bcrypt.DefaultCost)
+
+	if err != nil {
+		return nil, err
+	}
+	password = string(passwordHash)
+
+	return &password, nil
 }

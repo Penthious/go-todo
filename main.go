@@ -15,7 +15,7 @@ import (
 func main() {
 
 	DB := postgres.New(&pg.Options{
-		User:     "postgres",
+		User:     "tleffew",
 		Password: "postgres",
 		Database: "todo_dev",
 	})
