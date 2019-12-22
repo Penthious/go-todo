@@ -65,6 +65,11 @@ func unauthorizedResponse(w http.ResponseWriter) {
 	jsonResponse(w, response, http.StatusUnauthorized)
 }
 
+func forbiddenResponse(w http.ResponseWriter) {
+	response := map[string]string{"error": "forbidden"}
+	jsonResponse(w, response, http.StatusForbidden)
+}
+
 type PayloadValidation interface {
 	IsValid() (bool, map[string]string)
 }
@@ -92,4 +97,22 @@ func validatePayload(next http.HandlerFunc, payload PayloadValidation) http.Hand
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
+}
+
+func (s *Server) withOwner(subjectType string) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			currentUser := s.getUserFromCTX(r)
+			subject := r.Context().Value(subjectType).(domain.HaveOwner)
+
+			if !subject.IsOwner(currentUser) {
+
+				forbiddenResponse(w)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+
 }

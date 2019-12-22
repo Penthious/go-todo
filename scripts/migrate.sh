@@ -6,7 +6,7 @@ up() {
 }
 
 down() {
- migrate -database "${POSTGRESQL_URL}" -path postgres/migrations up
+ migrate -database "${POSTGRESQL_URL}" -path postgres/migrations down
 
 }
 

@@ -13,7 +13,14 @@ func (s *Server) setupEndpoints(r *chi.Mux) {
 
 		r.Route("/todos", func(r chi.Router) {
 			r.Use(s.withUser)
-			r.Post("/", s.createTodo())
+			r.Post("/create", s.createTodo())
+			r.Route("/{id}", func(r chi.Router) {
+				r.Use(s.todoCTX)
+				r.Use(s.withOwner("todo"))
+				r.Patch("/", s.updateTodo())
+				r.Delete("/", s.deleteTodo())
+
+			})
 		})
 	})
 
