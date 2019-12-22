@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/go-chi/chi"
-	"net/http"
 )
 
 func (s *Server) setupEndpoints(r *chi.Mux) {
@@ -14,10 +13,7 @@ func (s *Server) setupEndpoints(r *chi.Mux) {
 
 		r.Route("/todos", func(r chi.Router) {
 			r.Use(s.withUser)
-			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-				response := map[string]string{"hello": "world"}
-				jsonResponse(w, response, 200)
-			})
+			r.Post("/", s.createTodo())
 		})
 	})
 
