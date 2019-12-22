@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type Todo struct {
 	ID        int64     `json:"id"`
@@ -9,6 +12,12 @@ type Todo struct {
 	UserID    int64     `json:"user_id"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+	DeletedAt time.Time `json:"deletedAt" pg:",soft_delete"`
+}
+
+func (t *Todo) BeforeUpdate(ctx context.Context) (context.Context, error) {
+	t.UpdatedAt = time.Now()
+	return ctx, nil
 }
 
 type CreateTodoPayload struct {

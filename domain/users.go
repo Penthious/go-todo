@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"github.com/dgrijalva/jwt-go"
 	"os"
 	"time"
@@ -14,11 +15,17 @@ type User struct {
 
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+	DeletedAt time.Time `json:"deletedAt" pg:",soft_delete"`
 }
 
 type JWTToken struct {
 	AccessToken string    `json:"accessToken"`
 	ExpiresAt   time.Time `json:"expiresAt"`
+}
+
+func (u *User) BeforeUpdate(ctx context.Context) (context.Context, error) {
+	u.UpdatedAt = time.Now()
+	return ctx, nil
 }
 
 func (user *User) GenToken() (*JWTToken, error) {
