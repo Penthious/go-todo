@@ -26,6 +26,21 @@ func (u *UserRepo) GetByEmail(email string) (*domain.User, error) {
 	return user, nil
 }
 
+func (u *UserRepo) GetByID(id int64) (*domain.User, error) {
+	user := new(domain.User)
+
+	err := u.DB.Model(user).Where("id = ?", id).First()
+
+	if err != nil {
+		if errors.Is(err, pg.ErrNoRows) {
+			return nil, domain.ErrNoResult
+		}
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (u *UserRepo) GetByUsername(username string) (*domain.User, error) {
 	user := new(domain.User)
 

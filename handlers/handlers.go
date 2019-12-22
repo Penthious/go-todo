@@ -60,6 +60,11 @@ func badRequestResponse(w http.ResponseWriter, err error) {
 	jsonResponse(w, response, http.StatusBadRequest)
 }
 
+func unauthorizedResponse(w http.ResponseWriter) {
+	response := map[string]string{"error": "unauthorized"}
+	jsonResponse(w, response, http.StatusUnauthorized)
+}
+
 type PayloadValidation interface {
 	IsValid() (bool, map[string]string)
 }

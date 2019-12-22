@@ -18,8 +18,7 @@ type User struct {
 
 type JWTToken struct {
 	AccessToken string    `json:"accessToken"`
-	ExpiresAt   time.Time `json:"expiresAt"
-`
+	ExpiresAt   time.Time `json:"expiresAt"`
 }
 
 func (user *User) GenToken() (*JWTToken, error) {
@@ -27,8 +26,8 @@ func (user *User) GenToken() (*JWTToken, error) {
 	expiresAt := time.Now().Add(time.Hour * 24 * 7) // 1 week
 
 	jwtToken.Claims = jwt.MapClaims{
-		"id":  user.ID,
-		"exp": expiresAt.Unix(),
+		"user": user,
+		"exp":  expiresAt.Unix(),
 	}
 
 	accessToken, err := jwtToken.SignedString([]byte(os.Getenv("JWT_SECRET")))
@@ -38,4 +37,13 @@ func (user *User) GenToken() (*JWTToken, error) {
 	}
 
 	return &JWTToken{AccessToken: accessToken, ExpiresAt: expiresAt}, nil
+}
+
+func (d *Domain) GetUserByID(id int64) (*User, error) {
+	user, err := d.DB.UserRepo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

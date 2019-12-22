@@ -1,6 +1,13 @@
 package domain
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/request"
+	"golang.org/x/crypto/bcrypt"
+	"net/http"
+	"os"
+	"strings"
+)
 
 type RegisterPayload struct {
 	Email           string `json:"email"`
@@ -74,4 +81,36 @@ func (d *Domain) setPassword(password string) (*string, error) {
 	password = string(passwordHash)
 
 	return &password, nil
+}
+
+func stripBearerPrefixFromToken(token string) (string, error) {
+	bearer := "BEARER"
+
+	if len(token) > len(bearer) && strings.ToUpper(token[0:len(bearer)]) == bearer {
+
+		return token[len(bearer)+1:], nil
+	}
+
+	// @todo: pass an error instead
+	return token, nil
+
+}
+
+var authHeaderExtractor = &request.PostExtractionFilter{
+	Extractor: request.HeaderExtractor{"Authorization"},
+	Filter:    stripBearerPrefixFromToken,
+}
+
+var authExtractor = &request.MultiExtractor{
+	authHeaderExtractor,
+}
+
+func ParseToken(r *http.Request) (*jwt.Token, error) {
+
+	token, error := request.ParseFromRequest(r, authExtractor, func(t *jwt.Token) (interface{}, error) {
+		// @todo: what happens if no jwt_secret is set?
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+
+	return token, error
 }
