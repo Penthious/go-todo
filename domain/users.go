@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/go-pg/pg/v9"
 	"os"
 	"time"
 )
@@ -13,9 +14,9 @@ type User struct {
 	Email    string `json:"email"`
 	Password string `json:"-"`
 
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	DeletedAt time.Time `json:"deletedAt" pg:",soft_delete"`
+	CreatedAt time.Time   `json:"createdAt"`
+	UpdatedAt time.Time   `json:"updatedAt"`
+	DeletedAt pg.NullTime `json:"deletedAt" pg:",soft_delete"`
 }
 
 type JWTToken struct {

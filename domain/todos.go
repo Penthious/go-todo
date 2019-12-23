@@ -2,17 +2,19 @@ package domain
 
 import (
 	"context"
+	"fmt"
+	"github.com/go-pg/pg/v9"
 	"time"
 )
 
 type Todo struct {
-	ID        int64     `json:"id"`
-	Title     string    `json:"title"`
-	Completed bool      `json:"completed" pg:",use_zero"`
-	UserID    int64     `json:"user_id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	DeletedAt time.Time `json:"deletedAt" pg:",soft_delete"`
+	ID        int64       `json:"id"`
+	Title     string      `json:"title"`
+	Completed bool        `json:"completed" pg:",use_zero"`
+	UserID    int64       `json:"user_id"`
+	CreatedAt time.Time   `json:"createdAt"`
+	UpdatedAt time.Time   `json:"updatedAt"`
+	DeletedAt pg.NullTime `json:"deletedAt" pg:",soft_delete"`
 }
 
 func (t *Todo) BeforeUpdate(ctx context.Context) (context.Context, error) {
@@ -40,6 +42,7 @@ func (d *Domain) CreateTodo(payload CreateTodoPayload, user *User) (*Todo, error
 		UserID:    user.ID,
 	}
 
+	fmt.Printf("DATA: %v", data)
 	todo, err := d.DB.TodoRepo.Create(data)
 
 	if err != nil {
