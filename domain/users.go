@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-pg/pg/v9"
+	"golang.org/x/crypto/bcrypt"
 	"os"
 	"time"
 )
@@ -45,6 +46,11 @@ func (user *User) GenToken() (*JWTToken, error) {
 	}
 
 	return &JWTToken{AccessToken: accessToken, ExpiresAt: expiresAt}, nil
+}
+
+func (u *User) checkPassword(password string) error {
+	passwordByte, passwordHashedByte := []byte(password), []byte(u.Password)
+	return bcrypt.CompareHashAndPassword(passwordHashedByte, passwordByte)
 }
 
 func (d *Domain) GetUserByID(id int64) (*User, error) {

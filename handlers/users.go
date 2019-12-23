@@ -31,6 +31,25 @@ func (s *Server) registerUser() http.HandlerFunc {
 	}, &payload)
 }
 
+func (s *Server) loginUser() http.HandlerFunc {
+	var payload domain.LoginPayload
+
+	return validatePayload(func(w http.ResponseWriter, r *http.Request) {
+		user, err := s.domain.Login(payload)
+
+		if err != nil {
+			badRequestResponse(w, err)
+			return
+		}
+		jwtToken, err := user.GenToken()
+		if err != nil {
+			badRequestResponse(w, err)
+			return
+		}
+		jsonResponse(w, &authResponse{Token: jwtToken}, http.StatusOK)
+	}, &payload)
+}
+
 func (s *Server) getUserFromCTX(r *http.Request) *domain.User {
 	currentUser := r.Context().Value("currentUser").(*domain.User)
 

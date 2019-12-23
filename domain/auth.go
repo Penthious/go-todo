@@ -71,6 +71,38 @@ func (d *Domain) Register(payload RegisterPayload) (*User, error) {
 	return user, nil
 }
 
+type LoginPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (l *LoginPayload) IsValid() (bool, map[string]string) {
+	v := NewValidator()
+
+	v.ValueIsRequired("email", l.Email)
+	v.MustBeValidEmail("email", l.Email)
+
+	v.ValueIsRequired("password", l.Password)
+
+	return v.IsValid(), v.errors
+}
+
+func (d *Domain) Login(payload LoginPayload) (*User, error) {
+	user, err := d.DB.UserRepo.GetByEmail(payload.Email)
+
+	if err != nil || user == nil {
+		return nil, ErrInvalidCredentials
+	}
+
+	err = user.checkPassword(payload.Password)
+
+	if err != nil {
+		return nil, ErrInvalidCredentials
+	}
+
+	return user, nil
+}
+
 func (d *Domain) setPassword(password string) (*string, error) {
 	passwordByte := []byte(password)
 	passwordHash, err := bcrypt.GenerateFromPassword(passwordByte, bcrypt.DefaultCost)
